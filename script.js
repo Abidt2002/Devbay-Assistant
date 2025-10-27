@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return "🤖 Sorry, I couldn't find a matching answer. Try rephrasing your question.";
   }
 
-  // Slow word-by-word typing: 500ms per word
+  // Slow word-by-word typing: 750ms per word
   async function typeBot(text){
     const msg = document.createElement("div"); 
     msg.className="message bot"; 
@@ -83,15 +83,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const words = text.split(" ");
     for(let w of words){
       msg.innerHTML += (msg.innerHTML?" ":"")+w;
-      chatBox.scrollTop = chatBox.scrollHeight;
-      await new Promise(r=>setTimeout(r, 500)); // slow typing speed
+
+      // Smooth auto-scroll
+      chatBox.scrollTo({
+        top: chatBox.scrollHeight,
+        behavior: "smooth"
+      });
+
+      await new Promise(r=>setTimeout(r, 750)); // Moderately slow typing speed
     }
   }
 
   async function handleSend(){
     const text=userInput.value.trim(); if(!text) return;
-    const userMsg=document.createElement("div"); userMsg.className="message user"; userMsg.textContent=text;
-    chatBox.appendChild(userMsg); chatBox.scrollTop=chatBox.scrollHeight;
+    const userMsg=document.createElement("div"); 
+    userMsg.className="message user"; 
+    userMsg.textContent=text;
+    chatBox.appendChild(userMsg); 
+    chatBox.scrollTop=chatBox.scrollHeight;
     userInput.value="";
     const ans=findAnswer(text);
     await typeBot(ans);
