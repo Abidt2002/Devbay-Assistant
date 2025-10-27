@@ -11,12 +11,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const normalize = s => (s||"").toLowerCase().trim();
 
+  // OPEN / CLOSE CHAT with slide + pop
   const openChat = () => {
     chatContainer.classList.add("chat-visible");
+
+    // tiny scale pop effect
+    chatContainer.style.transform = "translateY(20px) scale(1.05)";
+    setTimeout(() => { chatContainer.style.transform = "translateY(0) scale(1)"; }, 50);
+
     userInput.focus();
-    if(chatBox.children.length===0) typeBot("👋 Hi — I'm the DevBay Assistant. Ask me anything about DevBay!");
+    if(chatBox.children.length===0)
+      typeBot("👋 Hi — I'm the DevBay Assistant. Ask me anything about DevBay!");
   };
   const closeChat = () => chatContainer.classList.remove("chat-visible");
+
   chatIcon.addEventListener("click", openChat);
   closeBtn.addEventListener("click", closeChat);
 
@@ -50,7 +58,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if(cur||col.length){ col.push(cur); rows.push(col); }
 
-    // Build qaData
     if(rows.length<2) return;
     const header = rows[0].map(h=>(h||"").toLowerCase());
     const qIdx = header.findIndex(h=>h.includes("question")) || 0;
@@ -68,13 +75,16 @@ document.addEventListener("DOMContentLoaded", () => {
     return "🤖 Sorry, I couldn't find a matching answer. Try rephrasing your question.";
   }
 
+  // Slow word-by-word typing: 500ms per word
   async function typeBot(text){
-    const msg = document.createElement("div"); msg.className="message bot"; chatBox.appendChild(msg);
+    const msg = document.createElement("div"); 
+    msg.className="message bot"; 
+    chatBox.appendChild(msg);
     const words = text.split(" ");
     for(let w of words){
       msg.innerHTML += (msg.innerHTML?" ":"")+w;
       chatBox.scrollTop = chatBox.scrollHeight;
-      await new Promise(r=>setTimeout(r,50));
+      await new Promise(r=>setTimeout(r, 500)); // slow typing speed
     }
   }
 
