@@ -1,32 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DevBay Assistant</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
       margin: 0;
-      padding: 0;
     }
 
     .chat-container {
-      width: 400px;
-      margin: 50px auto;
+      width: 420px;
       background: #fff;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      overflow: hidden;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
 
     .chat-box {
       padding: 15px;
-      height: 400px;
+      height: 450px;
       overflow-y: auto;
+      display: flex;
+      flex-direction: column;
     }
 
     .bot-message, .user-message {
@@ -78,19 +82,6 @@
 </head>
 <body>
   <div class="chat-container">
-    <div class="chat-box" id="chat-box">
-      <div class="bot-message">👋 Hi! I’m the DevBay Assistant. How can I help you today?</div>
-    </div>
-    <div class="input-area">
-      <input type="text" id="user-input" placeholder="Ask something..." />
-      <button onclick="sendMessage()">Send</button>
-    </div>
-  </div>
-
-  <script src="script.js"></script>
-</body>
-</html>
-
 
 
 
