@@ -1,106 +1,98 @@
-fetch("DevBay_Chatbot_QA.csv")
-
-// ============================================================
-// DevBay Chatbot Script (Optimized for Smooth Scroll + Word Animation)
-// ============================================================
+// ========================
+// DevBay Chatbot Script — Fixed for Proper CSV Matching
+// ========================
 
 document.addEventListener("DOMContentLoaded", () => {
   let chatbotData = [];
 
-  // ========================
-  // Load CSV Data
-  // ========================
-  fetch("chatbot_data.csv")
+  // Load CSV file
+  fetch("DevBay_Chatbot_QA.csv")
     .then(res => res.text())
     .then(data => {
       const rows = data.split("\n").slice(1); // skip header
       rows.forEach(row => {
-        const [category, question, answer] = row.split(",");
+        const [question, ...answerParts] = row.split(",");
+        const answer = answerParts.join(",").trim().replace(/^"|"$/g, ""); // fix quotes
         if (question && answer) {
           chatbotData.push({
             question: question.trim().toLowerCase(),
-            answer: answer.trim()
+            answer: answer
           });
         }
       });
-      console.log(`✅ Chatbot CSV loaded: ${chatbotData.length} entries`);
+      console.log("✅ Chatbot data loaded:", chatbotData.length, "entries");
     })
     .catch(err => console.error("❌ Error loading CSV:", err));
 
-  // ========================
-  // DOM Elements
-  // ========================
+  // DOM elements
   const chatIcon = document.getElementById("chat-icon");
-  const chatContainer = document.getElementById("devbay-chat");
+  const chatContainer = document.getElementById("chat-container");
   const closeChat = document.getElementById("close-chat");
   const chatBox = document.getElementById("chat-box");
   const userInput = document.getElementById("user-input");
   const sendBtn = document.getElementById("send-btn");
 
-  // ========================
-  // Toggle Chat Visibility
-  // ========================
+  // Open/Close chat
   chatIcon.addEventListener("click", () => {
-    chatContainer.classList.remove("chat-hidden");
-    chatContainer.classList.add("chat-visible");
-    chatContainer.setAttribute("aria-hidden", "false");
+    chatContainer.classList.toggle("chat-hidden");
+    chatContainer.classList.toggle("chat-visible");
   });
 
   closeChat.addEventListener("click", () => {
     chatContainer.classList.add("chat-hidden");
     chatContainer.classList.remove("chat-visible");
-    chatContainer.setAttribute("aria-hidden", "true");
   });
 
-  // ========================
-  // Send Message Logic
-  // ========================
+  // Send message events
   sendBtn.addEventListener("click", sendMessage);
   userInput.addEventListener("keypress", e => {
     if (e.key === "Enter") sendMessage();
   });
 
+  // ========== SEND MESSAGE ==========
   function sendMessage() {
     const msg = userInput.value.trim();
     if (!msg) return;
 
     addMessage("user", msg);
     userInput.value = "";
-
     showTypingIndicator();
 
     setTimeout(() => {
       removeTypingIndicator();
       const reply = getBotResponse(msg);
       typeMessage(reply);
-    }, 700);
+    }, 800);
   }
 
-  // ========================
-  // Get Bot Response
-  // ========================
+  // ========== GET BOT RESPONSE ==========
   function getBotResponse(userMessage) {
     const lower = userMessage.toLowerCase();
 
-    // Find best match (simple fuzzy match)
-    const match = chatbotData.find(item => lower.includes(item.question));
+    // Fuzzy search — best matching question
+    let bestMatch = null;
+    let bestScore = 0;
 
-    // Dynamic polite fallback
-    const fallbackReplies = [
-      "I'm not sure about that — could you rephrase it a bit?",
-      "Hmm, I don’t have an answer for that yet — want to ask differently?",
-      "Could you clarify what you mean?",
-      "Sorry, I’m still learning — can you try rewording that?"
-    ];
+    chatbotData.forEach(item => {
+      let score = 0;
+      const qWords = item.question.split(" ");
+      qWords.forEach(word => {
+        if (lower.includes(word)) score++;
+      });
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = item;
+      }
+    });
 
-    return match
-      ? match.answer
-      : fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
+    if (bestMatch && bestScore > 0) {
+      return bestMatch.answer;
+    }
+
+    return "🤔 I’m not sure about that. Try asking differently, e.g. 'What services Devbay provide?'.";
   }
 
-  // ========================
-  // Add User Message
-  // ========================
+  // ========== DISPLAY MESSAGES ==========
   function addMessage(sender, text) {
     const messageEl = document.createElement("div");
     messageEl.className = `message ${sender}`;
@@ -109,9 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
     scrollUpSmooth();
   }
 
-  // ========================
-  // Typing Indicator
-  // ========================
+  // Typing animation
   function showTypingIndicator() {
     const typing = document.createElement("div");
     typing.className = "typing";
@@ -126,33 +116,26 @@ document.addEventListener("DOMContentLoaded", () => {
     if (typing) typing.remove();
   }
 
-  // ========================
-  // Word-by-Word Typing Effect (with span animation)
-  // ========================
+  // Word-by-word typing effect
   function typeMessage(text) {
     const botMsg = document.createElement("div");
     botMsg.className = "message bot";
     chatBox.appendChild(botMsg);
 
     const words = text.split(" ");
-    let index = 0;
-
+    let i = 0;
     const interval = setInterval(() => {
-      if (index < words.length) {
-        const span = document.createElement("span");
-        span.textContent = (index === 0 ? "" : " ") + words[index];
-        botMsg.appendChild(span);
+      if (i < words.length) {
+        botMsg.textContent += (i === 0 ? "" : " ") + words[i];
         scrollUpSmooth();
-        index++;
+        i++;
       } else {
         clearInterval(interval);
       }
-    }, 80);
+    }, 60);
   }
 
-  // ========================
-  // Smooth Scroll Animation
-  // ========================
+  // Smooth auto-scroll up
   function scrollUpSmooth() {
     chatBox.scrollTo({
       top: chatBox.scrollHeight,
@@ -160,12 +143,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ========================
-  // Welcome Message
-  // ========================
+  // Welcome message
   setTimeout(() => {
-    typeMessage("👋 Hello! I’m the DevBay Assistant — how can I help you today?");
-  }, 600);
+    addMessage("bot", "👋 Hello! I’m the DevBay Assistant — how can I help you today?");
+  }, 800);
 });
 
 
