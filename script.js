@@ -11,20 +11,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const normalize = s => (s||"").toLowerCase().trim();
 
-  // OPEN / CLOSE CHAT with slide + pop
+  // OPEN / CLOSE CHAT with slide + pop animation
   const openChat = () => {
     chatContainer.classList.add("chat-visible");
-
-    // tiny scale pop effect
     chatContainer.style.transform = "translateY(20px) scale(1.05)";
     setTimeout(() => { chatContainer.style.transform = "translateY(0) scale(1)"; }, 50);
-
     userInput.focus();
-    if(chatBox.children.length===0)
-      typeBot("👋 Hi — I'm the DevBay Assistant. Ask me anything about DevBay!");
+    if(chatBox.children.length===0) showBotMessage("👋 Hi — I'm the DevBay Assistant. Ask me anything about DevBay!");
   };
-  const closeChat = () => chatContainer.classList.remove("chat-visible");
 
+  const closeChat = () => chatContainer.classList.remove("chat-visible");
   chatIcon.addEventListener("click", openChat);
   closeBtn.addEventListener("click", closeChat);
 
@@ -37,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
       parseCSV(text);
     } catch(e) {
       console.error("Failed to load CSV:", e);
-      typeBot("⚠️ Failed to load Q&A data from CSV.");
+      showBotMessage("⚠️ Failed to load Q&A data from CSV.");
     }
   }
 
@@ -75,40 +71,63 @@ document.addEventListener("DOMContentLoaded", () => {
     return "🤖 Sorry, I couldn't find a matching answer. Try rephrasing your question.";
   }
 
-  // Slow word-by-word typing: 500ms per word
-  async function typeBot(text){
-    const msg = document.createElement("div"); 
-    msg.className="message bot"; 
+  // Typing indicator
+  function showTyping() {
+    const t = document.createElement("div");
+    t.className = "typing";
+    t.id = "__typing";
+    t.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+    chatBox.appendChild(t);
+    chatBox.scrollTop = chatBox.scrollHeight;
+    return t;
+  }
+
+  function hideTyping() {
+    const t = document.getElementById("__typing");
+    if(t) t.remove();
+  }
+
+  // Character-by-character typing
+  async function typeBotCharByChar(text) {
+    const msg = document.createElement("div");
+    msg.className = "message bot";
     chatBox.appendChild(msg);
-    const words = text.split(" ");
-    for(let w of words){
-      msg.innerHTML += (msg.innerHTML?" ":"")+w;
 
-      // Smooth auto-scroll
-      chatBox.scrollTo({
-        top: chatBox.scrollHeight,
-        behavior: "smooth"
-      });
-
-      await new Promise(r=>setTimeout(r, 500)); // Moderately slow typing speed
+    for (let char of text) {
+      msg.innerHTML += char;
+      chatBox.scrollTop = chatBox.scrollHeight;
+      await new Promise(r => setTimeout(r, 30)); // 30ms per character, like ChatGPT
     }
   }
 
+  // Show bot message with typing indicator
+  async function showBotMessage(text){
+    const typingEl = showTyping();
+    await new Promise(r => setTimeout(r, 500)); // initial "thinking" delay
+    hideTyping();
+    await typeBotCharByChar(text);
+  }
+
+  // Handle user input
   async function handleSend(){
-    const text=userInput.value.trim(); if(!text) return;
-    const userMsg=document.createElement("div"); 
-    userMsg.className="message user"; 
-    userMsg.textContent=text;
-    chatBox.appendChild(userMsg); 
-    chatBox.scrollTop=chatBox.scrollHeight;
-    userInput.value="";
-    const ans=findAnswer(text);
-    await typeBot(ans);
+    const text = userInput.value.trim();
+    if(!text) return;
+
+    const userMsg = document.createElement("div");
+    userMsg.className = "message user";
+    userMsg.textContent = text;
+    chatBox.appendChild(userMsg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    userInput.value = "";
+    const ans = findAnswer(text);
+    await showBotMessage(ans);
   }
 
   sendBtn.addEventListener("click", handleSend);
-  userInput.addEventListener("keydown", e=>{ if(e.key==="Enter") handleSend(); });
+  userInput.addEventListener("keydown", e => { if(e.key==="Enter") handleSend(); });
 
   loadCsv();
 });
+
 
