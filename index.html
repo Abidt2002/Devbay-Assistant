@@ -1,80 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>DevBay Assistant</title>
+  <link rel="stylesheet" href="style.css" />
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f4f6f8;
+      background: #f5f6fa;
+      margin: 0;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      margin: 0;
     }
-
     .chat-container {
       width: 420px;
       background: #fff;
       border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
-
     .chat-box {
+      flex: 1;
       padding: 15px;
-      height: 450px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
     }
-
     .bot-message, .user-message {
       margin: 10px 0;
-      padding: 10px;
-      border-radius: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
       max-width: 80%;
-      line-height: 1.4;
+      line-height: 1.5;
+      word-wrap: break-word;
     }
-
     .bot-message {
-      background: #e9ecef;
-      color: #000;
+      background: #eaecef;
       align-self: flex-start;
     }
-
     .user-message {
       background: #007bff;
       color: #fff;
       align-self: flex-end;
     }
-
     .input-area {
       display: flex;
       border-top: 1px solid #ccc;
     }
-
     input {
       flex: 1;
-      border: none;
       padding: 12px;
-      font-size: 16px;
+      border: none;
       outline: none;
+      font-size: 15px;
     }
-
     button {
       background: #007bff;
       color: white;
       border: none;
       padding: 0 20px;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 15px;
     }
-
     button:hover {
       background: #0056b3;
     }
@@ -82,6 +74,16 @@
 </head>
 <body>
   <div class="chat-container">
+    <div class="chat-box" id="chat-box">
+      <div class="bot-message">👋 Hello! I'm the DevBay Assistant. Ask me anything about DevBay.</div>
+    </div>
+    <div class="input-area">
+      <input id="user-input" type="text" placeholder="Type your question..." onkeypress="if(event.key==='Enter') sendMessage()">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
 
-
+  <script src="script.js"></script>
+</body>
+</html>
 
