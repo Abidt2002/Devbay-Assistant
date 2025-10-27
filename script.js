@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const CSV_FILENAME = "DevBay_Chatbot_QA.csv";
+  const CSV_FILENAME = "DevBay_Chatbot_QA.csv"; // place in same folder
   let qaData = [];
 
   const chatIcon = document.getElementById("chat-icon");
@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const normalize = s => (s||"").toLowerCase().trim();
 
-  // Open/close chat
   const openChat = () => {
     chatContainer.classList.add("chat-visible");
     userInput.focus();
@@ -21,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
   chatIcon.addEventListener("click", openChat);
   closeBtn.addEventListener("click", closeChat);
 
-  // Fetch CSV automatically
+  // Load CSV
   async function loadCsv() {
     try {
       const res = await fetch(CSV_FILENAME, {cache:"no-store"});
@@ -34,51 +33,41 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Robust CSV parser (handles quotes, commas, newlines)
+  // Robust CSV parser
   function parseCSV(text) {
     const rows = [];
-    let cur = "";
-    let col = [];
-    let inQuotes = false;
-    for (let i = 0; i < text.length; i++) {
-      const ch = text[i];
-      if (ch === '"' && text[i+1] === '"') { cur += '"'; i++; continue; }
-      if (ch === '"') { inQuotes = !inQuotes; continue; }
-      if (ch === ',' && !inQuotes) { col.push(cur); cur=""; continue; }
-      if ((ch === '\n' || ch === '\r') && !inQuotes) {
-        col.push(cur);
-        rows.push(col);
-        col = [];
-        cur = "";
-        if(ch === '\r' && text[i+1]==='\n') i++;
-        continue;
+    let cur="", col=[], inQuotes=false;
+    for(let i=0;i<text.length;i++){
+      const ch=text[i];
+      if(ch==='"' && text[i+1]==='"'){ cur+='"'; i++; continue; }
+      if(ch==='"'){ inQuotes=!inQuotes; continue; }
+      if(ch===',' && !inQuotes){ col.push(cur); cur=""; continue; }
+      if((ch==='\n'||ch==='\r') && !inQuotes){
+        col.push(cur); rows.push(col); col=[]; cur="";
+        if(ch==='\r' && text[i+1]==='\n') i++; continue;
       }
-      cur += ch;
+      cur+=ch;
     }
-    if(cur || col.length) { col.push(cur); rows.push(col); }
+    if(cur||col.length){ col.push(cur); rows.push(col); }
 
-    // Build qaData (skip header)
-    qaData = [];
-    if(rows.length < 2) return;
-    const header = rows[0].map(h => (h||"").toLowerCase());
-    const qIdx = header.findIndex(h => h.includes("question")) || 0;
-    const aIdx = header.findIndex(h => h.includes("answer")) || 1;
-    for(let i=1; i<rows.length; i++){
-      const r = rows[i];
-      if(!r) continue;
-      qaData.push({ question: normalize(r[qIdx]), answer: r[aIdx] || "" });
+    // Build qaData
+    if(rows.length<2) return;
+    const header = rows[0].map(h=>(h||"").toLowerCase());
+    const qIdx = header.findIndex(h=>h.includes("question")) || 0;
+    const aIdx = header.findIndex(h=>h.includes("answer")) || 1;
+    for(let i=1;i<rows.length;i++){
+      const r=rows[i]; if(!r) continue;
+      qaData.push({ question: normalize(r[qIdx]), answer: r[aIdx]||"" });
     }
   }
 
-  // Find answer
   function findAnswer(q){
-    q = normalize(q);
+    q=normalize(q);
     const exact = qaData.find(e=>e.question===q);
     if(exact) return exact.answer;
     return "🤖 Sorry, I couldn't find a matching answer. Try rephrasing your question.";
   }
 
-  // Type word-by-word
   async function typeBot(text){
     const msg = document.createElement("div"); msg.className="message bot"; chatBox.appendChild(msg);
     const words = text.split(" ");
@@ -89,19 +78,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Send handler
   async function handleSend(){
-    const text = userInput.value.trim(); if(!text) return;
-    const userMsg = document.createElement("div"); userMsg.className="message user"; userMsg.textContent=text;
+    const text=userInput.value.trim(); if(!text) return;
+    const userMsg=document.createElement("div"); userMsg.className="message user"; userMsg.textContent=text;
     chatBox.appendChild(userMsg); chatBox.scrollTop=chatBox.scrollHeight;
     userInput.value="";
-    const ans = findAnswer(text);
+    const ans=findAnswer(text);
     await typeBot(ans);
   }
 
   sendBtn.addEventListener("click", handleSend);
   userInput.addEventListener("keydown", e=>{ if(e.key==="Enter") handleSend(); });
 
-  // Auto-load CSV
   loadCsv();
 });
+
