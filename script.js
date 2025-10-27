@@ -1,8 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const CSV_FILENAME = "DevBay_Chatbot_QA.csv"; // CSV file in the same directory
+  const CSV_FILENAME = "DevBay_Chatbot_QA.csv";
   let qaData = [];
 
-  // DOM
   const chatIcon = document.getElementById("chat-icon");
   const chatContainer = document.getElementById("devbay-chat");
   const closeBtn = document.getElementById("close-chat");
@@ -12,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const normalize = s => (s||"").toLowerCase().trim();
 
-  // Chat open/close
+  // Open/close chat
   const openChat = () => {
     chatContainer.classList.add("chat-visible");
     userInput.focus();
@@ -22,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
   chatIcon.addEventListener("click", openChat);
   closeBtn.addEventListener("click", closeChat);
 
-  // fetch CSV automatically
+  // Fetch CSV automatically
   async function loadCsv() {
     try {
       const res = await fetch(CSV_FILENAME, {cache:"no-store"});
@@ -35,14 +34,43 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function parseCSV(text){
-    const rows = text.split(/\r?\n/).map(r=>r.split(","));
-    // assume first row is header
-    qaData = rows.slice(1).map(r=>{
-      return { question: normalize(r[0]), answer: r[1] || "" };
-    });
+  // Robust CSV parser (handles quotes, commas, newlines)
+  function parseCSV(text) {
+    const rows = [];
+    let cur = "";
+    let col = [];
+    let inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (ch === '"' && text[i+1] === '"') { cur += '"'; i++; continue; }
+      if (ch === '"') { inQuotes = !inQuotes; continue; }
+      if (ch === ',' && !inQuotes) { col.push(cur); cur=""; continue; }
+      if ((ch === '\n' || ch === '\r') && !inQuotes) {
+        col.push(cur);
+        rows.push(col);
+        col = [];
+        cur = "";
+        if(ch === '\r' && text[i+1]==='\n') i++;
+        continue;
+      }
+      cur += ch;
+    }
+    if(cur || col.length) { col.push(cur); rows.push(col); }
+
+    // Build qaData (skip header)
+    qaData = [];
+    if(rows.length < 2) return;
+    const header = rows[0].map(h => (h||"").toLowerCase());
+    const qIdx = header.findIndex(h => h.includes("question")) || 0;
+    const aIdx = header.findIndex(h => h.includes("answer")) || 1;
+    for(let i=1; i<rows.length; i++){
+      const r = rows[i];
+      if(!r) continue;
+      qaData.push({ question: normalize(r[qIdx]), answer: r[aIdx] || "" });
+    }
   }
 
+  // Find answer
   function findAnswer(q){
     q = normalize(q);
     const exact = qaData.find(e=>e.question===q);
@@ -50,6 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return "🤖 Sorry, I couldn't find a matching answer. Try rephrasing your question.";
   }
 
+  // Type word-by-word
   async function typeBot(text){
     const msg = document.createElement("div"); msg.className="message bot"; chatBox.appendChild(msg);
     const words = text.split(" ");
@@ -60,6 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Send handler
   async function handleSend(){
     const text = userInput.value.trim(); if(!text) return;
     const userMsg = document.createElement("div"); userMsg.className="message user"; userMsg.textContent=text;
@@ -72,6 +102,6 @@ document.addEventListener("DOMContentLoaded", () => {
   sendBtn.addEventListener("click", handleSend);
   userInput.addEventListener("keydown", e=>{ if(e.key==="Enter") handleSend(); });
 
-  // load CSV automatically
+  // Auto-load CSV
   loadCsv();
 });
