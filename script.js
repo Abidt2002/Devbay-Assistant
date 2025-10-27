@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return "🤖 Sorry, I couldn't find a matching answer. Try rephrasing your question.";
   }
 
-  // Slow word-by-word typing: 600ms per word
+  // Slow word-by-word typing: 500ms per word
   async function typeBot(text){
     const msg = document.createElement("div"); 
     msg.className="message bot"; 
@@ -90,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
         behavior: "smooth"
       });
 
-      await new Promise(r=>setTimeout(r, 600)); // Moderately slow typing speed
+      await new Promise(r=>setTimeout(r, 500)); // Moderately slow typing speed
     }
   }
 
