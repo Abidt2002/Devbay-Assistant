@@ -1,30 +1,30 @@
 // ========================
-// DevBay Chatbot Script — Fixed for Proper CSV Matching
+// DevBay Chatbot Script — Accurate Response Version
 // ========================
 
 document.addEventListener("DOMContentLoaded", () => {
   let chatbotData = [];
 
-  // Load CSV file
+  // ========== Load CSV Data ==========
   fetch("DevBay_Chatbot_QA.csv")
     .then(res => res.text())
     .then(data => {
-      const rows = data.split("\n").slice(1); // skip header
-      rows.forEach(row => {
-        const [question, ...answerParts] = row.split(",");
-        const answer = answerParts.join(",").trim().replace(/^"|"$/g, ""); // fix quotes
-        if (question && answer) {
-          chatbotData.push({
-            question: question.trim().toLowerCase(),
-            answer: answer
-          });
+      const lines = data.split(/\r?\n/).filter(line => line.trim());
+      const headers = lines.shift(); // remove header row
+      lines.forEach(line => {
+        // handle commas inside quotes
+        const match = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+        if (match && match.length >= 2) {
+          const question = match[0].replace(/^"|"$/g, "").trim().toLowerCase();
+          const answer = match.slice(1).join(",").replace(/^"|"$/g, "").trim();
+          chatbotData.push({ question, answer });
         }
       });
-      console.log("✅ Chatbot data loaded:", chatbotData.length, "entries");
+      console.log("✅ Loaded", chatbotData.length, "QA entries");
     })
     .catch(err => console.error("❌ Error loading CSV:", err));
 
-  // DOM elements
+  // ========== DOM Elements ==========
   const chatIcon = document.getElementById("chat-icon");
   const chatContainer = document.getElementById("chat-container");
   const closeChat = document.getElementById("close-chat");
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const userInput = document.getElementById("user-input");
   const sendBtn = document.getElementById("send-btn");
 
-  // Open/Close chat
+  // ========== Chat Visibility ==========
   chatIcon.addEventListener("click", () => {
     chatContainer.classList.toggle("chat-hidden");
     chatContainer.classList.toggle("chat-visible");
@@ -43,17 +43,15 @@ document.addEventListener("DOMContentLoaded", () => {
     chatContainer.classList.remove("chat-visible");
   });
 
-  // Send message events
+  // ========== Message Sending ==========
   sendBtn.addEventListener("click", sendMessage);
   userInput.addEventListener("keypress", e => {
     if (e.key === "Enter") sendMessage();
   });
 
-  // ========== SEND MESSAGE ==========
   function sendMessage() {
     const msg = userInput.value.trim();
     if (!msg) return;
-
     addMessage("user", msg);
     userInput.value = "";
     showTypingIndicator();
@@ -62,22 +60,29 @@ document.addEventListener("DOMContentLoaded", () => {
       removeTypingIndicator();
       const reply = getBotResponse(msg);
       typeMessage(reply);
-    }, 800);
+    }, 700);
   }
 
-  // ========== GET BOT RESPONSE ==========
+  // ========== Intelligent Matching ==========
   function getBotResponse(userMessage) {
     const lower = userMessage.toLowerCase();
 
-    // Fuzzy search — best matching question
+    // 1️⃣ Exact match
+    let found = chatbotData.find(item => item.question === lower);
+    if (found) return found.answer;
+
+    // 2️⃣ Partial match
+    found = chatbotData.find(item => lower.includes(item.question));
+    if (found) return found.answer;
+
+    // 3️⃣ Fuzzy matching (word overlap)
     let bestMatch = null;
     let bestScore = 0;
-
     chatbotData.forEach(item => {
+      const words = item.question.split(/\s+/);
       let score = 0;
-      const qWords = item.question.split(" ");
-      qWords.forEach(word => {
-        if (lower.includes(word)) score++;
+      words.forEach(w => {
+        if (lower.includes(w)) score++;
       });
       if (score > bestScore) {
         bestScore = score;
@@ -85,14 +90,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    if (bestMatch && bestScore > 0) {
-      return bestMatch.answer;
-    }
-
-    return "🤔 I’m not sure about that. Try asking differently, e.g. 'What services Devbay provide?'.";
+    if (bestMatch && bestScore > 0) return bestMatch.answer;
+    return "🤔 I’m not sure about that — try asking, e.g., 'What is Devbay?' or 'Where is Devbay located?'.";
   }
 
-  // ========== DISPLAY MESSAGES ==========
+  // ========== Display Messages ==========
   function addMessage(sender, text) {
     const messageEl = document.createElement("div");
     messageEl.className = `message ${sender}`;
@@ -101,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
     scrollUpSmooth();
   }
 
-  // Typing animation
+  // Typing Indicator
   function showTypingIndicator() {
     const typing = document.createElement("div");
     typing.className = "typing";
@@ -110,13 +112,12 @@ document.addEventListener("DOMContentLoaded", () => {
     chatBox.appendChild(typing);
     scrollUpSmooth();
   }
-
   function removeTypingIndicator() {
     const typing = document.getElementById("typing");
     if (typing) typing.remove();
   }
 
-  // Word-by-word typing effect
+  // Word-by-word Typing
   function typeMessage(text) {
     const botMsg = document.createElement("div");
     botMsg.className = "message bot";
@@ -132,10 +133,10 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         clearInterval(interval);
       }
-    }, 60);
+    }, 50);
   }
 
-  // Smooth auto-scroll up
+  // Scroll Animation
   function scrollUpSmooth() {
     chatBox.scrollTo({
       top: chatBox.scrollHeight,
@@ -143,10 +144,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Welcome message
+  // Welcome Message
   setTimeout(() => {
-    addMessage("bot", "👋 Hello! I’m the DevBay Assistant — how can I help you today?");
-  }, 800);
+    addMessage("bot", "👋 Hello! I’m the DevBay Assistant — ask me anything about DevBay or our services.");
+  }, 700);
 });
 
 
