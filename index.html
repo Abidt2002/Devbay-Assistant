@@ -1,21 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>DevBay Chatbot</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="chat-container">
-    <h2>💬 DevBay Assistant</h2>
-    <div id="chat-box"></div>
+  <header style="padding:20px; text-align:center;">
+    <h1>Welcome to DevBay</h1>
+    <p>Explore our services — open the assistant (bottom-right) for quick Q&A.</p>
+  </header>
 
-    <div id="input-area">
-      <input type="text" id="user-input" placeholder="Type your message..." />
+  <main style="padding:20px; max-width:900px; margin:0 auto;">
+    <p>Put your site content here. The chatbot sits as a floating icon at the bottom-right.</p>
+  </main>
+
+  <!-- Chat container (hidden by default) -->
+  <div id="devbay-chat" class="chat-hidden" aria-hidden="true">
+    <div id="chat-header">
+      <span>💬 DevBay Assistant</span>
+      <button id="close-chat" aria-label="Close chat">✕</button>
+    </div>
+
+    <div id="chat-box" role="log" aria-live="polite"></div>
+
+    <div id="chat-input-area">
+      <input id="user-input" type="text" placeholder="Ask about DevBay (e.g. 'What is DevBay?')" />
       <button id="send-btn">Send</button>
     </div>
   </div>
+
+  <!-- Floating chat icon -->
+  <button id="chat-icon" title="Open DevBay Assistant" aria-label="Open chat">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
 
   <script src="script.js"></script>
 </body>
