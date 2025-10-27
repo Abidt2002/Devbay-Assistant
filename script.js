@@ -1,12 +1,13 @@
-// ========================
-// DevBay Chatbot Script (Fixed & Optimized)
-// ========================
+// ============================================================
+// DevBay Chatbot Script (Optimized for Smooth Scroll + Word Animation)
+// ============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Store chatbot dataset
   let chatbotData = [];
 
-  // Load CSV data
+  // ========================
+  // Load CSV Data
+  // ========================
   fetch("chatbot_data.csv")
     .then(res => res.text())
     .then(data => {
@@ -20,11 +21,13 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         }
       });
-      console.log("✅ Chatbot CSV loaded:", chatbotData.length, "entries");
+      console.log(`✅ Chatbot CSV loaded: ${chatbotData.length} entries`);
     })
     .catch(err => console.error("❌ Error loading CSV:", err));
 
-  // DOM elements
+  // ========================
+  // DOM Elements
+  // ========================
   const chatIcon = document.getElementById("chat-icon");
   const chatContainer = document.getElementById("devbay-chat");
   const closeChat = document.getElementById("close-chat");
@@ -33,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const sendBtn = document.getElementById("send-btn");
 
   // ========================
-  // Toggle chat visibility
+  // Toggle Chat Visibility
   // ========================
   chatIcon.addEventListener("click", () => {
     chatContainer.classList.remove("chat-hidden");
@@ -63,6 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
     userInput.value = "";
 
     showTypingIndicator();
+
     setTimeout(() => {
       removeTypingIndicator();
       const reply = getBotResponse(msg);
@@ -71,16 +75,29 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ========================
-  // Response Logic
+  // Get Bot Response
   // ========================
   function getBotResponse(userMessage) {
     const lower = userMessage.toLowerCase();
+
+    // Find best match (simple fuzzy match)
     const match = chatbotData.find(item => lower.includes(item.question));
-    return match ? match.answer : "I'm not sure about that — could you rephrase?";
+
+    // Dynamic polite fallback
+    const fallbackReplies = [
+      "I'm not sure about that — could you rephrase it a bit?",
+      "Hmm, I don’t have an answer for that yet — want to ask differently?",
+      "Could you clarify what you mean?",
+      "Sorry, I’m still learning — can you try rewording that?"
+    ];
+
+    return match
+      ? match.answer
+      : fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
   }
 
   // ========================
-  // Add Message to Chat
+  // Add User Message
   // ========================
   function addMessage(sender, text) {
     const messageEl = document.createElement("div");
@@ -108,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ========================
-  // Word-by-Word Typing Effect
+  // Word-by-Word Typing Effect (with span animation)
   // ========================
   function typeMessage(text) {
     const botMsg = document.createElement("div");
@@ -116,13 +133,15 @@ document.addEventListener("DOMContentLoaded", () => {
     chatBox.appendChild(botMsg);
 
     const words = text.split(" ");
-    let i = 0;
+    let index = 0;
 
     const interval = setInterval(() => {
-      if (i < words.length) {
-        botMsg.textContent += (i === 0 ? "" : " ") + words[i];
+      if (index < words.length) {
+        const span = document.createElement("span");
+        span.textContent = (index === 0 ? "" : " ") + words[index];
+        botMsg.appendChild(span);
         scrollUpSmooth();
-        i++;
+        index++;
       } else {
         clearInterval(interval);
       }
@@ -130,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ========================
-  // Auto Scroll Animation
+  // Smooth Scroll Animation
   // ========================
   function scrollUpSmooth() {
     chatBox.scrollTo({
@@ -143,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Welcome Message
   // ========================
   setTimeout(() => {
-    addMessage("bot", "👋 Hello! I’m the DevBay Assistant — how can I help you today?");
+    typeMessage("👋 Hello! I’m the DevBay Assistant — how can I help you today?");
   }, 600);
 });
 
