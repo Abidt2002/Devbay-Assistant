@@ -1,9 +1,9 @@
 /* ============================================================
-   DevBay Chatbot CSS — Smooth Scroll + Animated Messages
+   DevBay Chatbot CSS — Upward Scroll + Word-by-Word Animation
    ============================================================ */
 
 body {
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   margin: 0;
   background: #f6f7fb;
   color: #111827;
@@ -67,13 +67,16 @@ body {
 }
 
 /* ===============================
-   Message Box
+   Message Box (Scroll Up Animation)
    =============================== */
 #chat-box {
   flex: 1;
   overflow-y: auto;
   padding: 12px;
   background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
   scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: #c7d2fe #f8fafc;
@@ -86,50 +89,48 @@ body {
   border-radius: 4px;
 }
 
+/* Smooth upward scroll animation for messages */
+@keyframes scrollUp {
+  0% { transform: translateY(15px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
 /* ===============================
    Messages
    =============================== */
 .message {
   display: inline-block;
-  margin: 8px 0;
+  margin: 6px 0;
   padding: 10px 12px;
   border-radius: 12px;
-  max-width: 82%;
+  max-width: 85%;
   line-height: 1.4;
   word-break: break-word;
-  box-shadow: 0 2px 6px rgba(16,24,40,0.03);
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(16, 24, 40, 0.05);
   opacity: 0;
-  transform: translateY(10px);
-  animation: popIn 0.35s ease forwards;
-}
-
-@keyframes popIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  animation: scrollUp 0.35s ease forwards;
 }
 
 .message.user {
+  align-self: flex-start;
   background: #0b74ff;
   color: #ffffff;
-  margin-left: auto;
   border-bottom-right-radius: 6px;
-  animation-delay: 0.05s;
 }
 
 .message.bot {
+  align-self: flex-start;
   background: #eef2ff;
   color: #031025;
-  margin-right: auto;
   border-bottom-left-radius: 6px;
 }
 
-/* Word-by-word fade effect */
+/* Word-by-word fade effect for bot */
 .message.bot span {
   display: inline-block;
   opacity: 0;
-  animation: fadeWord 0.04s forwards;
+  animation: fadeWord 0.06s forwards;
 }
 @keyframes fadeWord {
   to { opacity: 1; }
@@ -139,10 +140,13 @@ body {
    Typing Indicator
    =============================== */
 .typing {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   padding: 8px 10px;
   border-radius: 12px;
   background: #eef2ff;
+  margin: 6px 0;
 }
 .typing .dot {
   width: 6px;
@@ -150,7 +154,6 @@ body {
   background: #0b74ff;
   border-radius: 50%;
   display: inline-block;
-  margin: 0 3px;
   animation: blink 1.1s infinite;
 }
 .typing .dot:nth-child(2) { animation-delay: .15s; }
