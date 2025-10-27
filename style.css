@@ -1,206 +1,93 @@
-/* ============================================================
-   DevBay Chatbot CSS — Upward Scroll + Word-by-Word Animation
-   ============================================================ */
-
 body {
-  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  margin: 0;
-  background: #f6f7fb;
-  color: #111827;
+  font-family: Arial, sans-serif;
 }
 
-/* ===============================
-   Chat Panel
-   =============================== */
 #devbay-chat {
   position: fixed;
-  right: 20px;
   bottom: 90px;
-  width: 340px;
-  max-width: calc(100vw - 40px);
-  height: 480px;
-  background: #ffffff;
-  border-radius: 14px;
-  box-shadow: 0 12px 40px rgba(14, 30, 37, 0.16);
+  right: 20px;
+  width: 330px;
+  height: 430px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  z-index: 10000;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(20px) scale(0.95);
-  transition: all 0.3s ease;
+  z-index: 1000;
+  transform: scale(0);
+  transition: transform 0.3s ease;
 }
 
-/* Active visible state */
-#devbay-chat.active {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0) scale(1);
+#devbay-chat.open {
+  transform: scale(1);
 }
 
-/* ===============================
-   Header
-   =============================== */
 #chat-header {
+  background: #007bff;
+  color: white;
+  padding: 10px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 12px 14px;
-  border-bottom: 1px solid #eef2f7;
-  background: linear-gradient(90deg, #ffffff, #f3f8ff);
-  font-weight: 600;
-  color: #0f172a;
+  align-items: center;
 }
 
-#chat-header button {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-  padding: 4px;
-  color: #555;
-  transition: color 0.2s ease;
-}
-#chat-header button:hover {
-  color: #0b74ff;
-}
-
-/* ===============================
-   Message Area
-   =============================== */
 #chat-box {
   flex: 1;
-  overflow-y: auto;
-  padding: 12px;
-  background: #f8fafc;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  scroll-behavior: smooth;
-  scrollbar-width: thin;
-  scrollbar-color: #c7d2fe #f8fafc;
-}
-#chat-box::-webkit-scrollbar {
-  width: 6px;
-}
-#chat-box::-webkit-scrollbar-thumb {
-  background: #c7d2fe;
-  border-radius: 4px;
-}
-
-/* Scroll-up animation for each message */
-@keyframes scrollUp {
-  0% { transform: translateY(12px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
-}
-
-/* ===============================
-   Messages
-   =============================== */
-.message {
-  display: inline-block;
-  margin: 6px 0;
-  padding: 10px 12px;
-  border-radius: 12px;
-  max-width: 85%;
-  line-height: 1.5;
-  font-size: 14px;
-  word-wrap: break-word;
-  box-shadow: 0 1px 4px rgba(16, 24, 40, 0.05);
-  opacity: 0;
-  animation: scrollUp 0.3s ease forwards;
-}
-
-.user-message {
-  align-self: flex-start;
-  background: #0b74ff;
-  color: #fff;
-  border-bottom-right-radius: 6px;
-}
-
-.bot-message {
-  align-self: flex-start;
-  background: #eef2ff;
-  color: #031025;
-  border-bottom-left-radius: 6px;
-}
-
-/* Word-by-word effect */
-.bot-message span {
-  display: inline-block;
-  opacity: 0;
-  animation: fadeWord 0.06s forwards;
-}
-@keyframes fadeWord {
-  to { opacity: 1; }
-}
-
-/* ===============================
-   Input Area
-   =============================== */
-#chat-input-area {
-  display: flex;
-  gap: 8px;
   padding: 10px;
-  border-top: 1px solid #eef2f7;
-  background: #fff;
+  overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
-#user-input {
-  flex: 1;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid #e6eef8;
-  font-size: 14px;
-  transition: border 0.2s;
-}
-#user-input:focus {
-  border-color: #0b74ff;
-  outline: none;
-}
-
-#send-btn {
-  background: #0b74ff;
-  color: white;
-  border: none;
+.user-msg, .bot-msg {
+  margin: 8px 0;
   padding: 10px 14px;
   border-radius: 10px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.25s ease;
-}
-#send-btn:hover {
-  background: #0056d6;
+  display: inline-block;
+  max-width: 80%;
+  animation: fadeInUp 0.3s ease;
 }
 
-/* ===============================
-   Floating Chat Icon
-   =============================== */
+.user-msg {
+  background: #007bff;
+  color: white;
+  align-self: flex-end;
+}
+
+.bot-msg {
+  background: #f1f1f1;
+  color: black;
+  align-self: flex-start;
+}
+
+#chat-input-area {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+}
+
+#chat-input-area input {
+  flex: 1;
+  padding: 8px;
+}
+
 #chat-icon {
   position: fixed;
-  right: 20px;
   bottom: 20px;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: linear-gradient(180deg, #0b74ff, #0056d6);
+  right: 20px;
+  background: #007bff;
   color: white;
   border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8px 24px rgba(11, 116, 255, 0.28);
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
   cursor: pointer;
-  z-index: 10001;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-#chat-icon:hover {
-  transform: scale(1.1);
-  box-shadow: 0 10px 28px rgba(11, 116, 255, 0.35);
-}
-#chat-icon svg {
-  display: block;
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 
