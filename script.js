@@ -1,3 +1,5 @@
+fetch("DevBay_Chatbot_QA.csv")
+
 // ============================================================
 // DevBay Chatbot Script (Optimized for Smooth Scroll + Word Animation)
 // ============================================================
