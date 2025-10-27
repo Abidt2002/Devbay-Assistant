@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>DevBay Chatbot</title>
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -16,29 +16,38 @@
     <p>Put your site content here. The chatbot sits as a floating icon at the bottom-right.</p>
   </main>
 
-  <!-- Chat Container -->
-  <div id="devbay-chat" class="chat-hidden">
+  <!-- ================================
+       Chat Container
+       ================================ -->
+  <div id="devbay-chat" class="chat-hidden" aria-hidden="true">
     <div id="chat-header">
       <span>💬 DevBay Assistant</span>
-      <button id="close-chat">✕</button>
+      <button id="close-chat" aria-label="Close chat">✕</button>
     </div>
 
-    <div id="chat-box"></div>
+    <div id="chat-box" role="log" aria-live="polite"></div>
 
     <div id="chat-input-area">
-      <input id="user-input" type="text" placeholder="Ask something..." />
+      <input
+        id="user-input"
+        type="text"
+        placeholder="Ask about DevBay (e.g. 'What is DevBay?')"
+      />
       <button id="send-btn">Send</button>
     </div>
   </div>
 
-  <!-- Floating Chat Icon -->
-  <button id="chat-icon" title="Open DevBay Assistant">
+  <!-- ================================
+       Floating Chat Icon
+       ================================ -->
+  <button id="chat-icon" title="Open DevBay Assistant" aria-label="Open chat">
     💬
   </button>
 
   <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
